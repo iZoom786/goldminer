@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>XAUUSD Gold Assistant • GMT+3 Prime Time</title>
+<title>XAUUSD Gold Assistant • GMT+3 & GMT+5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -184,12 +184,20 @@ body{
       <div class="logo">AU</div>
       <div>
         <h1>XAUUSD • Gold Assistant</h1>
-        <p>PAXGUSDT proxy • Wyckoff • ICT • VSA</p>
+        <p>XM proxy • Wyckoff • ICT • VSA</p>
       </div>
     </div>
     <div class="timebox">
-      <div class="pkt-time"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:6px;opacity:.9"><circle cx="12" cy="12" r="9" stroke="#fde68a" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#fde68a" stroke-width="2" stroke-linecap="round"/></svg><span id="tzAbbr" style="opacity:.85;margin-right:6px">GMT+3</span><span id="pktClock">--:--:--</span></div>
-      <div class="pkt-date" id="pktDate">Europe/Istanbul</div>
+      <div style="display:flex;gap:16px;justify-content:flex-end;align-items:flex-start">
+        <div style="text-align:right">
+          <div class="pkt-time"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;opacity:.9"><circle cx="12" cy="12" r="9" stroke="#fde68a" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#fde68a" stroke-width="2" stroke-linecap="round"/></svg><span style="opacity:.85;margin-right:4px">GMT+3</span><span id="pktClock">--:--:--</span></div>
+          <div class="pkt-date" id="pktDate">Istanbul</div>
+        </div>
+        <div style="text-align:right">
+          <div class="pkt-time"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:4px;opacity:.9"><circle cx="12" cy="12" r="9" stroke="#38bdf8" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/></svg><span style="opacity:.85;margin-right:4px">GMT+5</span><span id="pktClock5">--:--:--</span></div>
+          <div class="pkt-date" id="pktDate5">Islamabad</div>
+        </div>
+      </div>
       <div class="badges">
         <span id="primeBadge" class="badge prime hidden">GMT+3 PRIME 17:00–20:00</span>
         <span id="liveBadge" class="badge live">LIVE</span>
@@ -287,7 +295,7 @@ body{
 <script type="module">
 /* ========= Utilities: GMT+3 Clock ========= */
 const $ = sel => document.querySelector(sel);
-const pktClock = $('#pktClock'), pktDate = $('#pktDate'), primeBadge = $('#primeBadge');
+const pktClock = $('#pktClock'), pktDate = $('#pktDate'), pktClock5 = $('#pktClock5'), pktDate5 = $('#pktDate5'), primeBadge = $('#primeBadge');
 const tzAbbrEl = $('#tzAbbr');
 let userTz = localStorage.getItem('xau_tz') || 'Europe/Istanbul';
 const tzMap = {'Europe/Istanbul':'GMT+3','Africa/Nairobi':'GMT+3','Etc/GMT-3':'GMT+3','UTC':'UTC','Asia/Karachi':'PKT','Europe/London':'London'};
@@ -304,10 +312,20 @@ function updatePrimeBadge(){ primeBadge.textContent = `${tzLabel()} PRIME 17:00�
 function updateFooter(){ const ft=$('#footerTz'); if(ft) ft.textContent = tzLabel(); const lt=$('#logTz'); if(lt) lt.textContent = tzLabel(); }
 function updateClock(){
   const now = new Date();
-  pktClock.textContent = fmt.time.format(now);
-  pktDate.textContent = fmt.date.format(now) + ' • ' + userTz;
-  if(tzAbbrEl) tzAbbrEl.textContent = tzLabel();
-  const h = Number(fmt.hour.format(now));
+  // GMT+3 (Istanbul)
+  const fmt3time = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Istanbul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  const fmt3date = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Istanbul',weekday:'short',month:'short',day:'2-digit'});
+  // GMT+5 (Karachi/Islamabad)
+  const fmt5time = new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Karachi',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  const fmt5date = new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Karachi',weekday:'short',month:'short',day:'2-digit'});
+  
+  pktClock.textContent = fmt3time.format(now);
+  pktDate.textContent = fmt3date.format(now);
+  if(pktClock5) pktClock5.textContent = fmt5time.format(now);
+  if(pktDate5) pktDate5.textContent = fmt5date.format(now);
+  
+  // keep original prime time based on GMT+3
+  const h = Number(new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Istanbul',hour:'numeric',hour12:false}).format(now));
   const isPrime = h>=17 && h<20;
   primeBadge.classList.toggle('hidden', !isPrime);
 }
